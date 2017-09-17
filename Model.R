@@ -26,33 +26,34 @@ tweets[[1]]$content
 tweets.clean[[1]]$content
 
 tweets.clean.tfidf = DocumentTermMatrix(tweets.clean, control = list(weighting = weightTfIdf))
-tweets.clean.tfidf
-return(as.matrix(tweets.clean.tfidf))
+return(tweets.clean.tfidf)
+# return(as.matrix(tweets.clean.tfidf))
 }
 tweets.90 = g(train)
 
 
-tweets.90 = removeSparseTerms(tweets.clean.tfidf, 0.99)  # remove terms that are absent from at least 99% of documents (keep most terms)
+tweets.90 = removeSparseTerms(tweets.90, 0.99)  # remove terms that are absent from at least 99% of documents (keep most terms)
 tweets.90
 tweets.train = as.data.frame(as.matrix(tweets.90))
 train.new = cbind(tweets.train,train$sentiment)
 
-test.90 <- as.data.frame(g(test))
+test.90 <- as.data.frame(as.matrix(g(test)))
 
 train.new$fbi <-  NULL
 train.new$januari <-  NULL
 train.new$univers <-  NULL
 
 model2 <- lm(`train$sentiment`~.,data = train.new)
-install.packages("rJava")
+install.packages("RWeka")
 library(RWeka)
 test.90 = test.90[colnames(test.90) %in% colnames(train.new)]
-train.new2 = train.new
-train.new2$`train$sentiment` = NULL
-model3 <-  knn.reg(train = train.new2, test = test.90, y = `train$sentiment`)
-summary(model)
+# train.new2 = train.new
+# train.label <- train.new2$`train$sentiment`
+# train.new2$`train$sentiment` = NULL
+model3 <-  IBk(`train$sentiment`~.,data = train.new, control = Weka_control(K = 15, X = TRUE))
+summary(model3)
 
-guesses  = predict(model2,newdata = test.90)
+guesses  = predict(model3,test.90)
 guesses = round(guesses,digits = 0)
 guesses = cbind(test$id,guesses)
 colnames(guesses) <- c("id","sentiment")

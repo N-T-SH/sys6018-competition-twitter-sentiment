@@ -44,6 +44,12 @@ train.new$januari <-  NULL
 train.new$univers <-  NULL
 
 model2 <- lm(`train$sentiment`~.,data = train.new)
+install.packages("rJava")
+library(RWeka)
+test.90 = test.90[colnames(test.90) %in% colnames(train.new)]
+train.new2 = train.new
+train.new2$`train$sentiment` = NULL
+model3 <-  knn.reg(train = train.new2, test = test.90, y = `train$sentiment`)
 summary(model)
 
 guesses  = predict(model2,newdata = test.90)
